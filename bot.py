@@ -49,7 +49,7 @@ def post_mastodon(msg):
     Post a message to Mastodon
     """
     mastodon = Mastodon(
-        access_token='token.secret',
+        access_token=os.path.join(folder, 'token.secret'),
         api_base_url='https://botsin.space/'
     )
     mastodon.status_post(msg)
@@ -111,7 +111,7 @@ def check_answer():
     Check messages received and answer + add to suggestions
     """
     mastodon = Mastodon(
-        access_token='token.secret',
+        access_token=os.path.join(folder, 'token.secret'),
         api_base_url='https://botsin.space/'
     )
 
