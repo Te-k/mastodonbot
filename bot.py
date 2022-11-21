@@ -1,21 +1,23 @@
 import argparse
 import datetime
 import sys
+import os
 import random
 import logging
 from peewee import SqliteDatabase, Model, CharField, BooleanField, DateTimeField, IntegerField
 from mastodon import Mastodon
 
 # ----------------------------- DB Model --------------------------------------
+folder = os.path.dirname(os.path.realpath(__file__))
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        logging.FileHandler("logs.txt"),
+        logging.FileHandler(os.path.join(folder, "logs.txt")),
         logging.StreamHandler()
     ]
 )
-db = SqliteDatabase('infos.db')
+db = SqliteDatabase(os.path.join(folder, "infos.db"))
 
 
 class Song(Model):
@@ -84,6 +86,7 @@ def daily():
             theone.youtube_id,
             theone.link
         )
+    post_mastodon(msg)
     logging.info("Message posted : %s", msg)
     theone.published = True
     theone.publication_date = datetime.datetime.now()
@@ -115,6 +118,8 @@ def check_answer():
     for notif in mastodon.notifications(exclude_types=["follow", "favourite", "reblog", "poll", "follow_request"]):
         if notif["type"] != "mention":
             continue
+        if "https://" not in notif["status"]["content"] and "http://" not in notif["status"]["content"]:
+            continue
         exist = Suggestion.select().where(Suggestion.mast_id == notif["status"]['id'])
         if len(exist) == 0:
             # Never recorded
@@ -125,7 +130,7 @@ def check_answer():
             sugg.treated = False
             sugg.save()
 
-            mastodon.status_post("Noted, thanks!", in_reply_to_id=notif["status"])
+            mastodon.status_reply("Noted, thanks!", in_reply_to_id=notif["status"])
             logging.info("Answered to %s message %i", sugg.author, sugg.mast_id)
     mastodon.notifications_clear()
     logging.debug("Cleared notifications")
