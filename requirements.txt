@@ -1,0 +1,2 @@
+Mastodon.py==1.6.3
+peewee==3.15.4
