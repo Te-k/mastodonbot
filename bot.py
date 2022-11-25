@@ -76,7 +76,7 @@ def daily():
         sys.exit(0)
     theone = random.choice(songs)
     if theone.link is None:
-        msg = "{} #pouetradio #tootradio #music \nhttps://youtu.be/{}".format(
+        msg = "{} #PouetRadio #TootRadio #music \nhttps://youtu.be/{}".format(
             theone.message,
             theone.youtube_id,
         )
